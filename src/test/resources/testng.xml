@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Makeup Test Suite" verbose="1">
+
+    <listeners>
+        <listener class-name="com.makeup.utils.TestListener"/>
+        <!-- Allure listener (ОБОВ'ЯЗКОВО!) -->
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+
+    <!-- Вказуємо папку для результатів -->
+    <parameter name="allure.results.directory" value="target/allure-results"/>
+
+    <test name="Smoke Tests">
+        <classes>
+            <class name="com.makeup.tests.SearchTest"/>
+            <class name="com.makeup.tests.AddToCartTest"/>
+        </classes>
+    </test>
+
+</suite>
