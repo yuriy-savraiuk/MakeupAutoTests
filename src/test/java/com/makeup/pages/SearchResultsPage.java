@@ -1,5 +1,6 @@
 package com.makeup.pages;
 import io.qameta.allure.Step;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -9,6 +10,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class SearchResultsPage {
     private WebDriver driver;
@@ -115,12 +117,44 @@ public class SearchResultsPage {
     public void hoverFirstProductAndClickBuy() {
         wait.until(ExpectedConditions.visibilityOfElementLocated(productsContainerBy));
 
-        WebElement firstItem = wait.until(ExpectedConditions.visibilityOfElementLocated(firstProductItemBy));
+        // Отримуємо ВСІ елементи списку
+        List<WebElement> allItems = driver.findElements(
+                By.cssSelector("ul.simple-slider-list > li")
+        );
+
+        // Шукаємо перший, в якого є кнопка Buy
+        WebElement firstValidProduct = null;
+        for (WebElement item : allItems) {
+            try {
+                // Перевіряємо, чи є всередині кнопка Buy
+                item.findElement(By.cssSelector(".button.buy"));
+                firstValidProduct = item;
+                break; // Знайшли — виходимо з циклу
+            } catch (NoSuchElementException e) {
+                // Цей елемент не товар (банер/акція) — пропускаємо
+                continue;
+            }
+        }
+
+        if (firstValidProduct == null) {
+            throw new AssertionError("Не знайдено жодного товару з кнопкою Buy!");
+        }
+
+        // Скролимо до знайденого товару
+        ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].scrollIntoView({block: 'center'});",
+                firstValidProduct
+        );
 
         Actions actions = new Actions(driver);
-        actions.moveToElement(firstItem).perform(); // hover [web:8][web:21]
+        actions.moveToElement(firstValidProduct).perform();
 
-        WebElement buyButton = wait.until(ExpectedConditions.elementToBeClickable(firstProductBuyButtonBy));
+        // Чекаємо появи кнопки Buy після ховера
+        WebElement buyButton = new WebDriverWait(driver, Duration.ofSeconds(5))
+                .until(ExpectedConditions.visibilityOf(
+                        firstValidProduct.findElement(By.cssSelector(".button.buy"))
+                ));
+
         buyButton.click();
     }
 
