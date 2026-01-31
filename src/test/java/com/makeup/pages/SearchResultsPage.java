@@ -52,18 +52,27 @@ public class SearchResultsPage {
      * @param brandName Назва бренду точно так, як вона записана в атрибуті (наприклад "Vichy", "L'Oreal Paris")
      */
 
+    @Step("Вибрати бренд {brandName}")
     public void selectBrand(String brandName) {
-        // 1. Формуємо локатор динамічно.
-        // Використовуємо надійний CSS селектор по атрибуту data-filter-variant-name
-        String brandCssSelector = String.format("li[data-filter-variant-name='%s']", brandName);
-        By brandFilterLocator = By.cssSelector(brandCssSelector);
-        // 2. Знаходимо елемент фільтру (чекаємо, поки він стане клікабельним)
-        WebElement brandFilter = wait.until(ExpectedConditions.elementToBeClickable(brandFilterLocator));
-        // 3. Зберігаємо посилання на старий список товарів ДО кліку.
-        // Це потрібно, щоб потім перевірити, що список оновився.
-        WebElement brandsListBeforeClick = driver.findElement(brandCheckBoxes);
-        // 4. Клікаємо по бренду
-        brandFilter.click();
+        WebElement brandCheckbox = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.cssSelector("li[data-filter-variant-name='" + brandName + "']")
+        ));
+
+        // Скролимо елемент у центр екрану
+        ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].scrollIntoView({block: 'center', inline: 'center'});",
+                brandCheckbox
+        );
+
+        // Пауза після скролу
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        // Клікаємо через JavaScript (надійніше для headless)
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", brandCheckbox);
     }
 
     /**
@@ -149,12 +158,9 @@ public class SearchResultsPage {
         Actions actions = new Actions(driver);
         actions.moveToElement(firstValidProduct).perform();
 
-        // Чекаємо появи кнопки Buy після ховера
-        WebElement buyButton = new WebDriverWait(driver, Duration.ofSeconds(5))
-                .until(ExpectedConditions.visibilityOf(
-                        firstValidProduct.findElement(By.cssSelector(".button.buy"))
-                ));
-
+        WebElement buyButton = wait.until(ExpectedConditions.visibilityOf(
+                firstValidProduct.findElement(By.cssSelector(".button.buy"))
+        ));
         buyButton.click();
     }
 
