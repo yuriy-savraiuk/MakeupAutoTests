@@ -27,6 +27,13 @@ public class AddToCartTest extends BaseTest {
         String expectedTitle = resultsPage.getFirstProductTitle();
         resultsPage.hoverFirstProductAndClickBuy();
 
+        // ДОДАНО: Пауза для AJAX-запиту + анімації popup в headless режимі
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
         CartPopup cartPopup = new CartPopup(driver);
         Assert.assertTrue(cartPopup.isOpened(), "Cart popup did not open");
 

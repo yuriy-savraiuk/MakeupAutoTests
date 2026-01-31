@@ -182,6 +182,13 @@ public class SearchResultsPage {
 
         // Клік через JavaScript
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", buyButton);
+
+        // ДОДАТИ: Чекаємо, поки popup з'явиться (сайту потрібен час на AJAX-запит)
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
 
