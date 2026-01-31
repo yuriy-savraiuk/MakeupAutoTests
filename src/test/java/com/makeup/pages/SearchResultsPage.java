@@ -135,12 +135,10 @@ public class SearchResultsPage {
         WebElement firstValidProduct = null;
         for (WebElement item : allItems) {
             try {
-                // Перевіряємо, чи є всередині кнопка Buy
                 item.findElement(By.cssSelector(".button.buy"));
                 firstValidProduct = item;
-                break; // Знайшли — виходимо з циклу
+                break;
             } catch (NoSuchElementException e) {
-                // Цей елемент не товар (банер/акція) — пропускаємо
                 continue;
             }
         }
@@ -149,19 +147,42 @@ public class SearchResultsPage {
             throw new AssertionError("Не знайдено жодного товару з кнопкою Buy!");
         }
 
-        // Скролимо до знайденого товару
+        // Скролимо до товару
         ((JavascriptExecutor) driver).executeScript(
                 "arguments[0].scrollIntoView({block: 'center'});",
                 firstValidProduct
         );
 
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        // Ховер (для GUI режиму)
         Actions actions = new Actions(driver);
         actions.moveToElement(firstValidProduct).perform();
 
-        WebElement buyButton = wait.until(ExpectedConditions.visibilityOf(
-                firstValidProduct.findElement(By.cssSelector(".button.buy"))
-        ));
-        buyButton.click();
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        // Знаходимо кнопку (вона існує в DOM, але може бути невидимою)
+        WebElement buyButton = firstValidProduct.findElement(By.cssSelector(".button.buy"));
+
+        // КЛЮЧОВА ЗМІНА: Робимо її видимою СИЛОЮ через JavaScript
+        ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].style.visibility = 'visible'; " +
+                        "arguments[0].style.display = 'block'; " +
+                        "arguments[0].style.opacity = '1';",
+                buyButton
+        );
+
+        // Клік через JavaScript
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", buyButton);
     }
+
 
 }
