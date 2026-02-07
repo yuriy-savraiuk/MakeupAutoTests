@@ -21,7 +21,7 @@ public class BaseTest {
     @BeforeMethod
     public void setUp() {
         String browser = ConfigReader.getBrowser();
-
+        System.out.println("🔍 DEBUG: headless = " + System.getProperty("headless"));
         if (browser.equalsIgnoreCase("chrome")) {
             ChromeOptions options = new ChromeOptions();
 

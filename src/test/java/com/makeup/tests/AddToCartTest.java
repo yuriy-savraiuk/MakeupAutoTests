@@ -18,8 +18,7 @@ public class AddToCartTest extends BaseTest {
         homePage = new HomePage(driver);
         resultsPage = new SearchResultsPage(driver);
     }
-
-    @Test(enabled = false, description = "Temporarily disabled - flaky in headless mode")
+    @Test(description = "Add first product to cart from search")
     public void testAddFirstProductToCartFromSearch() {
         homePage.open();
         homePage.searchFor("L'Oreal");
